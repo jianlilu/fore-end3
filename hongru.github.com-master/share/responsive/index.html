@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Responsive Web</title>
+<link rel="stylesheet" href="../trans.css" />
+
+<style>
+    body {font-family: Microsoft Yahei; line-height: 1.6; background: rgba(0,0,0,0.85); color: rgba(255,255,255,0.5)}
+    h1 {
+        font-size: 2em;
+        font-weight: bold;
+        font-family: Georgia;
+    }
+    h4 {
+        font-size: 1.6em;
+    }
+    h1 em {
+        font-size: 3.5em;
+        color: #F96600;
+    }
+    .cc {
+        display: -webkit-box;
+        -webkit-box-align: center;
+        -webkit-box-pack: center;
+        min-height: 540px;
+    }
+    .cc.v {
+        -webkit-box-orient: vertical;
+    }
+    .tag {
+        display: inline-block;
+        padding: 0 8px;
+        background: rgba(255, 255, 255, 0.2);
+        -webkit-border-radius: 3px;
+        color: #222;
+    }
+    .circle-b {
+        width: 500px;
+        height: 500px;
+        border: 10px solid #ccc;
+        -webkit-border-radius: 260px;
+        font-size: 2em;
+        display: -webkit-box;
+        -webkit-box-align: center;
+        -webkit-box-pack: center;
+        font-weight: bold;
+    }
+    .circle-s {
+        width: 200px;
+        height: 200px;
+        border: 10px solid #FF8100;
+        -webkit-border-radius: 110px;
+        font-size: 1em;
+        display: -webkit-box;
+        -webkit-box-align: center;
+        -webkit-box-pack: center;
+        color: #333;
+    }
+    .tl {
+        text-align:left;
+    }
+    .reveal .slides section {
+        line-height: 1.6;
+        -webkit-box-shadow:inset 0 0 6px rgba(0,0,0,0.2)
+    }
+    a {text-decoration: none; color:#F96600}
+    a:hover {border-bottom: 2px solid rgba(255,255,255,0.5)}
+    
+    .c1 {color:#0094EF}
+    .c2 {color:#DB403C}
+    .c3 {color:#EDA247}
+    
+    .page-tit {
+        padding: 8px 16px;
+        font-size: 1.8em;
+        border-left: 0.5em solid #FF8100;
+        color: #fff;
+        text-align: left;
+    }
+    
+    .page-tit-s {
+        padding: 4px 10px;
+        font-size: 1.4em;
+        border-left: 0.2em solid #F8DC99;
+        color: #fff;
+        text-align: left;
+    }
+    
+    .tip-question {
+        width:208px;height:330px;position:absolute;background:url(./images/question.png) no-repeat -291px -237px; right: 60px;bottom:60px;
+    }
+    
+    section.bgw {
+        background-color: #fff;
+        color: #464646;
+    }
+    section.bgw .page-tit {
+        color: #333;
+    }
+    section.bgw .tag {
+        background: #cecece;
+    }
+</style>
+</head>
+
+<body>
+
+    <div class="reveal">
+        <div class="slides">
+                <section>
+                <div class="cc v">
+					<h1><em>Responsive Web</em></h1>
+                    <h2><span class="tag">观</span> - 岑安</h2>
+                </div>
+				</section>
+                
+                <section class="bgw" style="background-color:#FBFAF8">
+                    <div class="">
+                        <h2 class="page-tit">说在前面的话</h2>
+                        <ul class="tl" style="width: 38%; margin: 20px auto; font-size:1.5em; line-height: 2">
+                            <li>“单终端响应”，意义？</li>
+                            <li>Mobile - Resize? No!</li>
+                            <li>So? <span class="tag">phone</span> > <span class="tag">pad</span> > <span class="tag">pc</span></li>
+                        </ul>
+                        <p><img alt="" src="images/1.jpg" width="90%" /></p>
+                    </div>
+                </section>
+
+				<section class="tl">
+                    <div>
+                        <h2 class="page-tit">Topic List</h2>
+                        <ol style="font-size: 1.8em; line-height:2;margin-left: 2em">
+                            <li>关于响应式</li>
+                            <li>Design or Development</li>
+                            <li>基于Media Query</li>
+                            <li>从Mobile走向PC</li>
+                            <li>体验一致性的响应</li>
+                            <li>响应一体化</li>
+                        </ol>
+                        
+                    </div>
+                    
+                    <span class="tip-question"></span>
+				</section>
+                
+                <section class="bgw">
+                    <div class="">
+                        <h2 class="page-tit">关于响应式</h2>
+                        <ul style="font-size: 1.8em; line-height:2;margin-left: 2em;text-align:left">
+                            <li>What</li>
+                            <li>Why</li>
+                            <li>How</li>
+                            <li>演化方向</li>
+                            <li>实现方式</li>
+                        </ul>
+                    </div>
+                    
+                    <img alt="gloden circle" src="images/golden_circle.png" style="position:absolute;width:15em; bottom:60px; right:60px" />
+                </section>
+                
+                <section>
+                    <div>
+                        <h4 class="page-tit">Design or Development</h4>
+                        <img alt="Design Dev" src="images/design-dev.png" style="position:absolute;width:30em; left:60px; top:200px" />
+                    </div>
+                    <img alt="Design Dev" src="images/design-development-image.png" style="position:absolute;width:15em; bottom:60px; right:60px" />
+                </section>
+                
+                <section>
+                    <div>
+                        <h2 class="page-tit">基于 Media Query</h2>
+                        <a href="https://github.com/hongru/ResponsiveWeb/wiki/%E5%9F%BA%E4%BA%8EMedia-Query" target="_blank">
+                            <img src="./images/media-query.png" style="width:300px; margin-top:100px" />
+                        </a>
+                    </div>
+                </section>
+                
+                <section>
+                    <div>
+                        <h2>举个栗子...</h2>
+                        <a href="http://hongru.github.io/test/responsive-web/" target="_blank">
+                            <img src="./images/eg.jpg" style="width:400px; margin-top:40px" />
+                        </a>
+                    </div>
+                </section>
+                
+                <section>
+                    <div>
+                        <h2 class="page-tit">从Mobile走向PC</h2>
+                        <ul style="font-size: 1.8em; line-height:2;margin-left: 2em;text-align:left">
+                            <li>有区别吗？</li>
+                            <li>Mobile端的 resize？</li>
+                            <li>数据的冗余和分发
+                                <ul>
+                                    <li>How@OPOA的形态</li>
+                                    <li>How@server吐页面</li>
+                                </ul>
+                            </li>
+                            <li>从“小而简”开始做起 <a href="http://hongru.github.io/test/ResponsiveWeb/demos/resize-getPackage/" target="_blank"><span class="tag">For Example</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                
+                <section>
+                    <div>
+                        <h2 class="page-tit">体验一致性的响应</h2>
+                        <p>顾名思义: 主要工作在不支持 <span class="tag">Media Queries</span> 的响应</p>
+                        <img alt="media queries" src="http://hongru.github.io/images/responsive/media-queries.jpg" width="90%" />
+                    </div>
+                </section>
+                 
+                <section>
+                    <div>
+                        <h4>Step by Setp</h4>
+                        <ol class="tl" style="font-size:1.4em;line-height:2; width:90%;margin:0 auto">
+                            <li>侦探 matchMedia <a href="http://caniuse.com/#search=matchMedia" target="_blank">支持？</a></li>
+                            <li>不支持的，两种思路
+                                <ul>
+                                    <li>拿到csstext文本，解析出media queries中的内容，再按对应condition回馈到页面</li>
+                                    <li>引入class“命名空间”，结合resize listener切换顶级class</li>
+                                </ul>
+                            </li>
+                            <li>优劣和适用场景的思考...</li>
+                        </ol>
+                    </div>
+                </section>
+                
+                <section>
+                    <div>
+                        <h2 class="page-tit">响应一体化</h2>
+                        <ul class="tl" style="font-size:1.4em;line-height:2;width:70%;margin:0 auto">
+                            <li>除了排版的响应</li>
+                            <li>More...
+                                <ul>
+                                    <li>内容数据的响应</li>
+                                    <li>css link的响应</li>
+                                    <li>图片的响应</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+        </div>
+    </div>
+    
+    
+    <script type="text/javascript" src="https://rawgithub.com/hongru/Trans/master/src/js/trans.js"></script>
+    <script>
+        Trans.initialize({
+				history: true,
+				center: true,
+				transition: 'cube' // default/cube/page/concave/zoom/linear/none
+			});
+    </script>
+    <script>
+        window.addEventListener('keyup', function (e) {
+            var reg = /^#\/(\d+)/,
+                maxPage = document.querySelectorAll('.reveal .slides section').length;
+            
+            function tryNext() {
+                var m = location.hash.match(reg) || ['#/0', 0];
+                m[1] = parseInt(m[1]);
+                location.hash = '#/' + (m[1] >= maxPage-1 ? maxPage-1 : m[1]+1);
+            }
+            function tryPrev() {
+                var m = location.hash.match(reg) || ['#/0', 0];
+                m[1] = parseInt(m[1]);
+                location.hash = '#/' + (m[1] <= 0 ? 0 : m[1] - 1);
+            }
+            
+            switch (e.keyCode) {
+                case 37:
+                    tryPrev();
+                    break;
+                case 39:
+                    tryNext();
+                    break;
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+    <meta content="yes" name="apple-mobile-web-app-capable" />
+    <meta content="black" name="apple-mobile-web-app-status-bar-style" />
+    
+	<title>fullscreen</title>
+    <style>
+        body, h1,h2,h3,h4,h5,h6 {margin:0;}
+        body {margin: 0; overflow: hidden;}
+        .wrapper {
+            width: 100%;
+            display: -webkit-box;
+            -webkit-box-sizing: border-box;
+            height: 100%;
+            position: absolute;
+            background: -webkit-gradient(radial, 50% 50%, 0, 50% 50%, 500, from(#6FA6D9), to(#0D7BD5));
+            color: #fff;
+            -webkit-box-align: center;
+            -webkit-box-pack: center;
+            overflow: hidden;
+            -webkit-box-orient: vertical;
+            
+            -webkit-transition: -webkit-transform 500ms cubic-bezier(0, 0, 0.25, 1);
+            -webkit-transform: translate3d(0px, 0, 0);
+        }
+        .inner {
+            margin-top: -80px;
+            text-align: center;
+            -webkit-transition: -webkit-transform 250ms cubic-bezier(0, 0, 0.25, 1);
+            padding: 10px 0;
+        }
+        .text {
+            display: inline-block;
+            width: 240px;
+            padding: 10px;
+            font-size: 14px;
+            line-height: 18px;
+            background: #E8F4FC;
+            border: 1px solid #0D7BD5;
+            color: #888;
+            cursor: text;
+            box-shadow: 0 1px 0 rgba(255, 255, 255, .3),0 1px 3px rgba(0, 0, 0, .3) inset;
+            background-clip: padding-box;
+            border-radius: 5px;
+        }
+        .btn {
+            background: #1E95E5;
+            color: #B7D4EC;
+            color: rgba(255, 255, 255, .8);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, .05),0 1px 0 rgba(255, 255, 255, .15) inset;
+            border: 1px solid #147DCD;
+            cursor: pointer;
+            display: inline-block;
+            font-size: 14px;
+            line-height: 18px;
+            text-shadow: 0 1px 0 rgba(0, 0, 0, .2);
+            padding: 6px 15px;
+            text-align: center;
+            vertical-align: middle;
+            border-radius: 5px;
+            -webkit-appearance: none;
+        }
+        .up {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            margin-left: -50px;
+            width: 100px;
+            height: 60px;
+            -webkit-transform: skew(30deg) rotate(-30deg);
+            background: #fff;
+        }
+        
+        #main {
+            font-size: 16px;
+        }
+        #main p {
+            padding: 20px;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+    
+  </head>
+  <body >
+  
+    <div id="wrapper" class="wrapper">
+        <div id="inner" class="inner">
+            <h1>一淘</h1>
+            <div class="search">
+                <form>
+                <input type="text" class="text" placeholder="搜一淘" />
+                </form>
+            </div>
+        </div>
+        
+        <div class="up"></div>
+    </div>
+    
+    <div id="main"></div>
+  
+    <script>
+    ;(function () {
+        var $support = {
+            transform3d: ('WebKitCSSMatrix' in window),
+            touch: ('ontouchstart' in window)
+        };
+
+        var $E = {
+            start: $support.touch ? 'touchstart' : 'mousedown',
+            move: $support.touch ? 'touchmove' : 'mousemove',
+            end: $support.touch ? 'touchend' : 'mouseup'
+        };
+    
+        var wrapper = document.querySelector('#wrapper'), interval,
+            inner = wrapper.querySelector('#inner'),
+            up = wrapper.querySelector('.up'),
+            main = document.querySelector('#main');
+        
+        function getTranslateY(y) {
+            return $support.transform3d ? 'translate3d(0, '+y+'px, 0)' : 'translate(0, '+y+'px)';
+        }
+        function getPage (event, page) {
+            return $support.touch ? event.changedTouches[0][page] : event[page];
+        }
+        function getOffset (el) {
+            var width = el.offsetWidth,
+                height = el.offsetHeight,
+                top = el.offsetTop,
+                left = el.offsetLeft;
+                
+            while (el = el.offsetParent) {
+                top = top + el.offsetTop;
+                left = left + el.offsetLeft;
+            }
+
+            return {
+                top: top,
+                left: left,
+                height: height,
+                width: width
+            }
+        }
+        
+        up.addEventListener('click', function (e) {
+            moveSucc();
+        }, false);
+        
+        function moveSucc () {
+            var of = getOffset(inner),
+                ofb = wrapper.offsetHeight - of.height - of.top;
+                
+            wrapper.style.webkitTransitionDuration = '500ms';    
+            wrapper.style.webkitTransform = getTranslateY(-wrapper.offsetHeight+of.height);
+            inner.style.webkitTransform = getTranslateY(ofb);
+            up.style.display = 'none';
+            
+            hasSucc = true;
+            
+            setTimeout(function () {
+                renderContent(of.height);
+            }, 800);
+        }
+        
+        function moveFail () {
+            wrapper.style.webkitTransitionDuration = '500ms'; 
+            wrapper.style.webkitTransform = getTranslateY(0);
+            inner.style.webkitTransform = getTranslateY(0);
+        }
+        
+        function renderContent (dis) {
+            main.style.paddingTop = dis + 'px';
+            main.innerHTML = '<p>加载中...</p>';
+        }
+        
+        //swipe
+        var _ts = {}, _tm = {}, hasSucc = false;
+        wrapper.addEventListener($E.start, function (event) {
+            if (hasSucc) { return; }
+            
+            this.style.webkitTransitionDuration = '0';
+            _ts.touching = true;
+            _ts.moveReady = false;
+            _ts.startPageX = getPage(event, 'pageX');
+            _ts.startPageY = getPage(event, 'pageY');
+            _ts.basePageY = _ts.startPageY;
+            _ts.directionX = 0;
+            _ts.startTime = event.timeStamp;
+        });
+        wrapper.addEventListener($E.move, function (e) {
+            e.preventDefault();
+            if (!_ts.touching) { return; }
+            
+            var pageX = getPage(event, 'pageX'),
+                pageY = getPage(event, 'pageY'),
+                distX,
+                newX,
+                deltaX,
+                deltaY;
+            
+            if (!_tm.lastPageY) {
+                _tm.dir = (pageY - _ts.startPageY < 0) ? 'up' : 'down';
+                _tm.lastPageY = pageY;
+            } else {
+                _tm.dir = (pageY - _tm.lastPageY < 0) ? 'up' : 'down';
+                _tm.lastPageY = pageY;
+            }
+            
+            if (pageY < _ts.startPageY) {
+                wrapper.style.webkitTransform = getTranslateY(pageY - _ts.startPageY);
+            }
+        });
+        wrapper.addEventListener($E.end, function (e) {
+            if (!_ts.touching) { return; }
+            
+            var pageY = getPage(event, 'pageY');
+            if (_tm.dir == 'up' && Math.abs(pageY - _ts.startPageY) > 50) {
+                moveSucc();
+            } else {
+                moveFail();
+            }
+            
+            _ts.touching = false;
+        });
+        
+    })();
+        
+        /*
+        window.addEventListener('load', function () {
+            window.scroll(0, 1);
+            interval = setInterval(function () {
+                wrapper.style.height = window.innerHeight + 'px';
+            }, 100);
+            
+        }, false)
+        */
+    </script>
+  </body>
+</html>

@@ -1,0 +1,29 @@
+<html>
+<script src="http://cdn.qplus.com/js/qplus.api.js"></script>
+<div id="ua"></div>
+<div id="r"></div>
+<script>
+
+qplus.onReady(function () {
+    console && console.log(window.frameElement)
+    document.getElementById('ua').innerHTML = (window.navigator.userAgent);
+    var r = [];
+    r.push('window.innerWidth: '+window.innerWidth, 
+            'window.innerHeight: '+window.innerHeight, 
+            'document.documentElement.clientWidth: '+document.documentElement.clientWidth, 
+            'document.documentElement.clientHeight: '+document.documentElement.clientHeight,
+            'document.documentElement.offsetWidth:' + document.documentElement.offsetWidth,
+            'document.documentElement.offsetHeight:' + document.documentElement.offsetHeight,
+            'document.documentElement.scrollWidth:' + document.documentElement.scrollWidth,
+            'document.documentElement.scrollHeight:' + document.documentElement.scrollHeight,
+            'document.body.clientWidth: '+document.body.clientWidth, 
+            'document.body.clientHeight: '+document.body.clientHeight,
+            'document.body.offsetWidth:' + document.body.offsetWidth,
+            'document.body.offsetHeight:' + document.body.offsetHeight,
+            'document.body.scrollWidth:' + document.body.scrollWidth,
+            'document.body.scrollHeight:' + document.body.scrollHeight);
+    document.getElementById('r').innerHTML = r.join('<br/>');
+})
+
+</script>
+</html>

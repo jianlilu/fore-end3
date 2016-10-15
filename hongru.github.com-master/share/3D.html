@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Simple 3D</title>
+<base target="_blank"></base>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+<script type="text/javascript" src="../resource/iscroll/iscroll.js"></script>
+<script src="../js/JCanvas.0.1.js"></script>
+
+<script>
+var myScroll;
+$(function () {
+	var $wrapper = $('#wrapper'),
+		$scroller = $('#scroller'),
+		$items = $('#scroller li.item'),
+		cnt = $items.length,
+		resizeTimer,
+        hoverTimer;
+        
+    // 生成 #nav li
+    var _a = [];
+    for (var i = 0; i < $items.length; i ++) {
+        _a.push('<li title="'+(i+1)+'">'+(i+1)+'</li>');
+    }
+    $('#indicator').html(_a.join(''));
+    $('#indicator li').eq(0).addClass('active');
+	// resize	
+	function resize () {
+		var ww = $wrapper.width(),
+			winW = $(window).width(),
+			winH = $(window).height();
+		$wrapper.height(winH - 20);
+		$scroller.css({ width: ww*cnt });
+		$items.css({ width: ww });
+		myScroll && myScroll.refresh();
+	}
+	resize();
+	$(window).bind('resize', function () {
+		clearTimeout(resizeTimer);
+		resizeTimer = setTimeout(resize, 200);
+	});
+    $('#indicator li').bind('click', function (e) {
+        e.preventDefault();
+        var to = parseInt($(this).html());
+        myScroll && myScroll.scrollToPage(to-1);
+    })
+    $('#nav').hover(function (e) {
+        clearTimeout(hoverTimer);
+        hoverTimer = setTimeout(function () {
+            $('#nav').animate({'bottom':0, opacity:1});
+        }, 200)    
+    }, function () {
+        clearTimeout(hoverTimer);
+        hoverTimer = setTimeout(function () {
+            $('#nav').animate({'bottom':-30, opacity:0});
+        }, 200);
+    });
+    
+    // code
+    $('code').each(function () {
+        var t = $(this).text();
+        $(this).html(t);
+    })
+	
+	myScroll = new iScroll('wrapper', {
+		snap: true,
+		momentum: false,
+		hScrollbar: false,
+		onScrollEnd: function () {
+			document.querySelector('#indicator > li.active').className = '';
+			document.querySelector('#indicator > li:nth-child(' + (this.currPageX+1) + ')').className = 'active';
+		}
+	 });
+});
+</script>
+
+<style type="text/css" media="all">
+body {
+	background: #25272B
+}
+body,ul,li {
+	padding:10px;
+	margin:0;
+}
+h1,h2,h3,h4,h5,h6{ font-weight: 600 }
+
+body {
+	font-size:12px;
+	-webkit-user-select:none;
+    -webkit-text-size-adjust:none;
+	font-family:helvetica Microsoft Yahei;
+    overflow: hidden;
+}
+
+#wrapper {
+    width: 100%;
+	height:160px;
+	float:left;
+	position:relative;	/* On older OS versions "position" and "z-index" must be defined, */
+	z-index:1;			/* it seems that recent webkit is less picky and works anyway. */
+	overflow:hidden;
+
+	background:#aaa;
+	-webkit-border-radius:10px;
+	-moz-border-radius:10px;
+	-o-border-radius:10px;
+	border-radius:10px;
+	background:#e3e3e3;
+	-webkit-box-shadow: 0 0 10px #000;
+}
+
+#scroller {
+	width:2100px;
+	height:100%;
+	float:left;
+	padding:0;
+}
+
+#thelist {
+	list-style:none;
+	display:block;
+	float:left;
+	width:100%;
+	height:100%;
+	padding:0;
+	margin:0;
+	text-align:left;
+}
+
+#thelist>li {
+	-webkit-box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-o-box-sizing:border-box;
+	box-sizing:border-box;
+	display:block; float:left;
+	width:100%; 
+	height:100%;
+
+	font-family:Microsoft Yahei;
+	font-size:18px;
+	line-height:140%;
+}
+
+#nav {
+    width: 100%;
+    position: absolute;
+    bottom: -30px;
+    opacity: 0;
+    left: 0;
+    height: 40px;
+    background: rgba(64, 64, 64, .8);
+    z-index: 100;
+    text-align: center;
+}
+
+#prev, #next {
+	float:left;
+	font-weight:bold;
+	font-size:14px;
+	padding:5px 0;
+	width:80px;
+}
+
+#next {
+	float:right;
+	text-align:right;
+}
+
+#indicator, #indicator > li {
+	display:inline-block;
+	list-style:none;
+	padding:0; margin:0;
+}
+
+#indicator {
+    display: inline-block;
+	padding:12px 0 0 30px;
+}
+
+#indicator > li {
+	text-indent:-9999em;
+	width:8px; height:8px;
+	-webkit-border-radius:4px;
+	-moz-border-radius:4px;
+	-o-border-radius:4px;
+	border-radius:4px;
+	background:#ddd;
+	overflow:hidden;
+	margin-right:4px;
+    cursor: pointer;
+}
+
+#indicator > li.active {
+	background:#888;
+}
+
+#indicator > li:last-child {
+	margin:0;
+}
+.in-con {
+	padding: 100px 40px 40px 200px;
+	text-align:left;
+	position: relative;
+}
+h1 {
+	font-size: 46px;
+}
+#cube-home {
+	position: absolute;
+	left: 40px;
+	top: 60px;
+}
+#scroller li .list li {
+	
+}
+.btn,
+.list a {
+	padding: 0 20px;
+	font-size: 12px;
+	font-weight: bold;
+	color: #fff;
+	display: inline-block;
+	background: #1C4C80;
+	-webkit-border-radius: 2px;
+	-webkit-box-shadow: 0 0 5px #333;
+	margin-bottom: 8px;
+	-webkit-transition-duration: 500ms;
+	margin-left: 8px;
+}
+.btn:hover,
+.list a:hover {
+	background: #4B83AF;
+}
+pre {
+	width: 80%;
+	height: 300px;
+	overflow:auto;
+	font-size: 14px;
+	color: #eee;
+	background: rgba(0,0,0, .6);
+}
+</style>
+</head>
+<body>
+<div id="wrapper">
+	<div id="scroller">
+		<ul id="thelist">
+			<li class="item">
+				<div class="in-con">
+				<canvas id="cube-home" width="200" height="200"></canvas>
+				<h1>Simple 3D (base on canvas)</h1>
+				--by horizon
+				</div>
+			</li>
+            <li class="item">
+				<div class="in-con">
+                    <h2>Timeline</h2>
+                    <img alt="" src="3D/web.png" />
+                    <ul>
+                        <li>1996年 javascript的介入</li>
+                        <li>2005年 ajax技术发展</li>
+                        <li>2009年 html5相关技术的兴起</li>
+                    </ul>
+				</div>
+			</li>
+            <li class="item">
+                <div class="in-con">
+                    <p>曾经：闲的蛋疼的人才在 web 上做3D<br/>
+                    而今：如果你不想闲的蛋疼，那就在web上玩玩3D吧</p>
+                    
+                    <ul>
+                        <li>3D 引擎：
+                            <ul>
+                                <li><a href="http://www.c3dl.org/">C3DL</a>
+                                    <a href="http://www.ambiera.com/copperlicht/">Copperlicht</a>
+                                    <a href="http://energize.cc/">EnergizeGL</a>
+                                    <a href="http://www.glge.org/">GLGE</a>
+                                    <a href="http://jax.thoughtsincomputation.com/">Jax</a>
+                                    <a href="http://processingjs.org/">Processing</a>
+                                    <a href="http://www.scenejs.com/">SceneJS</a>
+                                    <a href="http://spidergl.org/">SpiderGL</a>
+                                    <a href="http://code.google.com/p/stormenginec/">StormEngineC</a>
+                                    <a href="https://github.com/mrdoob/three.js/">Three.js</a>
+                                    <a href="http://sourceforge.net/projects/webglu/">WebGLU</a>
+                                    <a href="http://www.x3dom.org/">X3DOM</a>
+                                    <a href="http://code.google.com/p/o3d/">o3d</a>
+                                    <a href="http://osgjs.org/">osgjs</a>
+                                    <a href="http://www.oak3d.com/">Oak3D</a>
+                                </li>
+                                <li>...</li>
+                            </ul>
+                        </li>
+                        <li>不仅仅是特效：
+                            <ul><li>google实验性产品3d书架</br>
+                            <a href="http://workshop.chromeexperiments.com/bookcase">http://workshop.chromeexperiments.com/bookcase</a></li>
+                            <li>?3维全景地图...</li>
+                            <li>...</li>
+                            </ul>
+                        </li>
+                    </ul>
+				</div>
+            </li>
+            <li class="item">
+				<div class="in-con">
+                    <h2>绘制3D effects 的两种方式（base on canvas）</h2>
+                    <ul>
+                        <li>getContext('2d')  --> 借助数学算法来模拟</li>
+                        <li>getContext('experimental-webgl')  --> webGL</li>
+                        <li>建模工具</li>
+                    </ul>
+				</div>
+			</li>
+			<li class="item">
+				<div class="in-con">
+				<h2>Demos</h2>
+				<a class="btn" href="3D/clock.html">clock</a>
+				<a class="btn" href="3D/math1.html">math1</a>
+				<a class="btn" href="3D/math2.html">math2</a>
+				<a class="btn" href="3D/math3.html">math3</a>
+				<a class="btn" href="3D/math4.html">math4</a>
+				<a class="btn" href="3D/sphere.html">sphere</a>
+				<a class="btn" href="3D/tags.html">tags sphere</a>
+                <br/>
+				<a class="btn" href="3D/cube.html">cube</a>
+				<a class="btn" href="3D/cube2.html">cube2</a>
+				<a class="btn" href="3D/cube3.html">cube3</a>
+				<a class="btn" href="3D/cube4.html">cube4</a>
+				<a class="btn" href="3D/cube5.html">cube5</a>
+                <br/>
+				<a class="btn" href="3D/rotate3D.html">rotate3D</a>
+				<a class="btn" href="3D/rotate3D_Y.html">rotate3D_Y</a>
+				<a class="btn" href="3D/lines.html">rotate3D_XY</a>
+				<a class="btn" href="3D/rotate3D_lines.html">rotate3D_lines</a>
+				</div>
+			</li>
+			<li class="item">
+				<div class="in-con" style="padding-top:60px">
+					<h2>原理</h2>
+					<img alt="" src="3D/1.gif" />
+				</div>
+			</li>
+			<li class="item">
+				<div class="in-con" style="padding-top:60px">
+					<h2>z坐标投影到平面后对x, y 坐标的影响</h2>
+					<img alt="" src="3D/2.jpg" />
+					<a class="btn" href="3D/rotate3D.html">demo</a>
+				</div>
+			</li>
+			<li class="item">
+				<div class="in-con" style="padding-top:60px">
+					<h2>三维旋转矩阵</h2>
+					<img alt="" src="3D/3.png" />
+					<p style="margin-top: 0.4em; margin-right: 0px; margin-bottom: 0.5em; margin-left: 0px; line-height: 1.5em; ">生成旋转矩阵的一种简单方式是把它作为三个基本旋转的序列复合。关于右手笛卡尔坐标系的&nbsp;<em>x</em>-,&nbsp;<em>y</em>- 和&nbsp;<em>z</em>-轴的旋转分别叫做&nbsp;<em>roll</em>,&nbsp;<em>pitch</em>&nbsp;和&nbsp;<em>yaw</em>&nbsp;旋转。因为这些旋转被表达为关于一个轴的旋转，它们的生成元很容易表达。</p>
+					
+				</div>
+			</li>
+			<li class="item" style="padding: 80px 0 0 100px">
+			<ul style="line-height: 1.5em; list-style-type: square; margin-top: 0.3em; margin-right: 0px; margin-bottom: 0px; margin-left: 1.5em; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; list-style-image: url(http://bits.wikimedia.org/skins-1.5/vector/images/bullet-icon.png?1); ">
+     <li style="margin-bottom: 0.1em; ">绕&nbsp;<em>x</em>-轴的主动旋转定义为:</li>
+</ul>
+				<dl style="margin-top: 0.2em; margin-bottom: 0.5em; "><dd style="line-height: 1.5em; margin-left: 2em; margin-bottom: 0.1em; "><img alt=" \mathcal{R}_x(\theta_x)= \begin{bmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; \cos{\theta_x} &amp; -\sin{\theta_x} \\ 0 &amp; \sin{\theta_x} &amp; \cos{\theta_x} \end{bmatrix} =\exp \left( \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; \theta_x \\ 0 &amp; -\theta_x &amp; 0 \end{bmatrix}\right)" src="http://upload.wikimedia.org/math/3/d/6/3d6ab188a68499b6d57d24addfb40f98.png" style="border-top-style: none; border-right-style: none; border-bottom-style: none; border-left-style: none; border-width: initial; border-color: initial; vertical-align: middle; ">&nbsp;这里的&nbsp;<span style="font-family: serif; ">θ<sub><em>x</em></sub></span>&nbsp;是 roll 角。</dd></dl>
+				<ul style="line-height: 1.5em; list-style-type: square; margin-top: 0.3em; margin-right: 0px; margin-bottom: 0px; margin-left: 1.5em; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; list-style-image: url(http://bits.wikimedia.org/skins-1.5/vector/images/bullet-icon.png?1); ">
+     <li style="margin-bottom: 0.1em; ">绕&nbsp;<em>y</em>-轴的主动旋转定义为:</li>
+</ul>
+				<dl style="margin-top: 0.2em; margin-bottom: 0.5em; "><dd style="line-height: 1.5em; margin-left: 2em; margin-bottom: 0.1em; "><img alt=" \mathcal{R}_y(\theta_y)= \begin{bmatrix} \cos{\theta_y} &amp; 0 &amp; \sin{\theta_y} \\ 0 &amp; 1 &amp; 0 \\ -\sin{\theta_y} &amp; 0 &amp; \cos{\theta_y} \end{bmatrix} =\exp\left( \begin{bmatrix} 0 &amp; 0 &amp; - \theta_y \\ 0 &amp; 0 &amp; 0 \\ \theta_y &amp; 0 &amp; 0 \end{bmatrix}\right)" src="http://upload.wikimedia.org/math/1/5/3/153ac4e8bc4e0deb5e13b17b44276488.png" style="border-top-style: none; border-right-style: none; border-bottom-style: none; border-left-style: none; border-width: initial; border-color: initial; vertical-align: middle; ">&nbsp;这里的&nbsp;<span style="font-family: serif; ">θ<sub><em>y</em></sub></span>&nbsp;是 pitch 角。</dd></dl>
+				<ul style="line-height: 1.5em; list-style-type: square; margin-top: 0.3em; margin-right: 0px; margin-bottom: 0px; margin-left: 1.5em; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; list-style-image: url(http://bits.wikimedia.org/skins-1.5/vector/images/bullet-icon.png?1); ">
+     <li style="margin-bottom: 0.1em; ">绕&nbsp;<em>z</em>-轴的主动旋转定义为:</li>
+</ul>
+				<dl style="margin-top: 0.2em; margin-bottom: 0.5em; "><dd style="line-height: 1.5em; margin-left: 2em; margin-bottom: 0.1em; "><img alt=" \mathcal{R}_z(\theta_z)= \begin{bmatrix} \cos{\theta_z} &amp; -\sin{\theta_z} &amp; 0 \\ \sin{\theta_z} &amp; \cos{\theta_z} &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix} =\exp\left( \begin{bmatrix} 0 &amp; \theta_z &amp; 0 \\ - \theta_z &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 0 \end{bmatrix}\right)" src="http://upload.wikimedia.org/math/e/d/b/edb465bf10a2ea647ad2debe4f250811.png" style="border-top-style: none; border-right-style: none; border-bottom-style: none; border-left-style: none; border-width: initial; border-color: initial; vertical-align: middle; ">&nbsp;这里的&nbsp;<span style="font-family: serif; ">θ<sub><em>z</em></sub></span>&nbsp;是 yaw 角。</dd></dl>
+			</li>
+			<li class="item" style="padding: 60px 0 0 100px">
+				<img alt="" src="3D/5.png" /><br/>
+				<a href="3D/rotate3D_Y.html" class="btn">绕Y轴旋转</a>
+			</li>
+			<li class="item">
+				<div class="in-con">
+                <pre>
+				<code class="code">
+function rotateY(ball, angleY) {
+	var cosy = Math.cos(angleY),
+		siny = Math.sin(angleY),
+		x1 = ball.xpos * cosy - ball.zpos * siny,
+		z1 = ball.zpos * cosy + ball.xpos * siny;
+	ball.xpos = x1;
+	ball.zpos = z1;
+}
+        
+function rotateX(ball, angleX) {
+	var cosx = Math.cos(angleX),
+		sinx = Math.sin(angleX),
+		y1 = ball.ypos * cosx - ball.zpos * sinx,
+		z1 = ball.zpos * cosx + ball.ypos * sinx;
+	ball.ypos = y1;
+	ball.zpos = z1;
+}
+				
+				</code>
+                </pre><br/>
+				<a href="3D/rotate3D_XY.html" class="btn">同时绕XY轴旋转</a>
+				</div>
+			</li>
+            <li class="item">
+				<div class="in-con">
+				<h2>由点到线</h2>
+				<a href="3D/rotate3D_lines.html" class="btn">两点之间连接成线</a>
+                <h2>由线到面</h2>
+                <a href="3D/cube.html" class="btn">封闭折线成面</a>
+				</div>
+                
+			</li>
+            <li class="item">
+				<div class="in-con">
+				<h2>面的基元（三角形）</h2>
+				<p>任何一个折面都可以由三角形拼接而成</p>
+                <a href="3D/cube3.html" class="btn">由三角形拼接而成的面</a>
+				</div>
+			</li>
+            <li class="item">
+				<div class="in-con">
+				<h2>关于单点透视的消失点（VanishPoint）和观察点（ViewPoint/Camera）</h2>
+				<p>VanishPoint通常是被观察物体的相对坐标原点</p>
+                <p>ViewPoint 即观察者的视角点（camera）</p>
+                <a href="3D/vanish_point.html" class="btn">VanishPoint demo</a>
+                <a href="3D/view_point.html" class="btn">ViewPoint demo</a>
+                <p>* 关于lighting（光照）放到webGL里面讲</p>
+				</div>
+			</li>
+            <li class="item">
+				<div class="in-con">
+				<h2>关于三角形翻转正反面的判断</h2>
+				<p>http://www.jurjans.lv/flash/shape.html</p>
+                <p><img src="3D/backface.png" /></p>
+				</div>
+			</li>
+            
+            
+            <!-- webGL pages -->
+            <li class="item">
+                <div class="in-con">
+                    <h2>About webGL</h2>
+                    <ul>
+                        <li>基于openGL ES 在canvas上渲染图形</li>
+                        <li><a href="http://www.khronos.org/registry/gles/specs/2.0/GLSL_ES_Specification_1.0.17.pdf"> OpenGL® ES Shading Languag</a></li>
+                        <li>&lt;script type="x-shader/x-fragment"&gt; -- 片元着色器</li>
+                        <li>&lt;script type="x-shader/x-vertex"&gt;  -- 顶点着色器</li>
+                        <li>gl = canvas.getContext('experimental-webgl')  -- gl的api列表</li>
+                        <li>webGL <a href="3D/webgl/gl_flow.html">渲染管线流程图及GLES常用点</a></li>
+                    </ul>
+                </div>
+            </li>
+            
+            <li class="item">
+                <div class="in-con">
+                    <h2>Code View -- Square</h2>
+                    <ul>
+                        <li><a class="btn" href="3D/webgl/square.html">webgl square</a>
+                            <ul>
+                                <li>shader language</li>
+                                <li>initGL()</li>
+                                <li>initShaders() [getShaders, compileShader, createProgram, attachShaders, linkProgram, useProgram ...]</li>
+                                <li>initBuffer()</li>
+                                <li>render()</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            
+            <li class="item">
+                <div class="in-con">
+                    <h2>Code View -- Colored Square</h2>
+                    <ul>
+                        <li><a class="btn" href="3D/webgl/colored_square.html">webgl colored square</a>
+                            <ul>
+                                <li>shader --> attribute vec4 aVertexColor</li>
+                                <li>shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, 'aVertexColor');<br/>
+        gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);</li>
+                                <li>// rgba,每4个元素确定一个点的rgba值<br/>
+        // 由于openGL 矩阵是左乘变换，（由右向左）。所以以下颜色分别为 [右上，左上，右下，左下]
+</li>
+                                <li>gl.bindBuffer(gl.ARRAY_BUFFER, squareColorBuffer);<br/>
+        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, squareColorBuffer.itemSize, gl.FLOAT, false, 0, 0);</li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            
+            <li class="item">
+                <div class="in-con">
+                    <h2>Code View -- Animate</h2>
+                    <ul>
+                        <li><a class="btn" href="3D/webgl/anim_square.html">webgl animating square</a>
+                            <ul>
+                                <li>由于rotate,translate等变换共用一个模型视图矩阵mvMatrix,通常永远以最开始的状态作为基准点来变换。即不同变换之间不会相互影响</li>
+                                <li>每次变换前都copy备份一下mvMatrix矩阵，变换后还原</li>
+                                <li>小tip: requestAnimationFrame 有什么好处？</li>
+                                <li>小tip: 怎么保证变换速度的一致？</li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            
+            <li class="item">
+                <div class="in-con">
+                    <h2>Code View -- Cube</h2>
+                    <ul>
+                        <li><a class="btn" href="3D/webgl/cube.html">webgl animating cube</a>
+                            <ul>
+                                <li>常用方法：
+                                    <ul>
+                                        <li>分别绘制独立的六个面</li>
+                                        <li>以三角形为基元绘制，拼接而成</li>
+                                    </ul>
+                                </li>
+                                <li>每次变换前都copy备份一下mvMatrix矩阵，变换后还原</li>
+                                <li>关于drawArrays 和 drawElements</li>
+                                <li>关于buffer缓冲区的运用</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            
+            <li class="item">
+                <div class="in-con">
+                    <h2>Code View -- Texture</h2>
+                    <ul>
+                        <li><a class="btn" href="3D/webgl/cube_texture.html">webgl animating cube with texture</a>
+                            <ul>
+                                <li>在shader里面添加 texture</li>
+                                <li>用texture的像素点来代替普通color为vertex着色</li>
+                                <li>在未经过clip操作前对图片size有要求，如256*256</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+			
+			<li class="item">
+                <div class="in-con">
+                    <h2>Code View -- Texture Filter</h2>
+                    <ul>
+                        <li><a class="btn" href="3D/webgl/texture_filter.html">webgl texture filter</a>
+                            <ul>
+                                <li><strong>Nearest（最近点采样过滤）</strong>
+									<ul>
+										<li>这种算法实际上只是简单地放大了原始图像的像素，并没有做其他任何优化。</li>
+										<li>当纹理被按比例放大或者缩小时，WebGL会在原始图像上寻找最近的点来决定指定点的颜色。在没有缩放的情况下，纹理看其来还是不错的；缩小后，图像看起来还过得去；但是纹理图像被放大时，看起来会有很多“马赛克”</li>
+										<li>优点：效率高</li>
+									</ul>
+								</li>
+                                <li><strong>Linear（线性过滤）</strong>
+									<ul>
+										<li>对原始纹理图像上的像素进行了线性插值</li>
+										<li>一个白的和一个黑的像素之间的像素会被输出为灰色。这样的话，我们看到的画面效果就更加平滑，但是必然原本锐利的边缘部分会看起来有点模糊。</li>
+									</ul>
+								</li>
+                                <li><strong>Mipmaps（多级渐进纹理过滤）</strong>
+									<ul>
+										<li>缩小的时候可能出现像素点叠加的情况。。。</li>
+										<li>Mipmaps过滤通过为纹理图像生成许多被称为mip level的子图像。这些图像分别是原图尺寸大小、四分之一大小、十六分之一大小……直到1×1像素大小。所有这些子图像的集合被称为mipmap。每一个mip level都是上一级大一点的mip level的平均值，效果好，开销大</li>
+										<li>综合起来，放大可以用linear,缩小用mipmaps</li>
+									</ul>
+								</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+			
+			<li class="item">
+                <div class="in-con">
+                    <h2>Code View -- Lighting</h2>
+                    <ul>
+                        <li><a class="btn" href="3D/webgl/lighting.html">webgl lighting</a>
+                            <ul>
+                                <li>逐顶点光照（per-vertex lighting）
+									<ul>
+										<li>由于立体平面绘制都是绘制顶点。其他片元都由线性插值完成，所以光照也只需处理顶点。其他交给线性插值</li>
+										<li>环境光</li>
+										<li>平行光源</li>
+										<li>点光源</li>
+										<li>冯氏反射模型</li>
+										<li><a href="3D/webgl/intro_lighting.html">detail ...</a></li>
+									</ul>
+								</li>
+                                <li>逐片元光照（per-fragment lighting） 单独为每个片元（像素）计算光照</li>
+
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            
+			<li class="item">
+                <div class="in-con">
+                    <h2>About Sandy</h2>
+					<ul>
+						<li><a href="https://github.com/hongru/Sandy">https://github.com/hongru/Sandy</a></li>
+						<li>simple and easy</li>
+						<li>base on gl-matrix</li>
+						<li>轻量级</li>
+						<li>大部分常用功能。(基础几何模型，纹理，光照，json建模...)</li>
+						<li><a href="http://www.turbosquid.com/">3D素材</a></li>
+						<li><a class="btn" href="3D/webgl/sandy.cube.html">Sandy Cube</a>
+							<a class="btn" href="3D/webgl/sandy.particles.html">Sandy Particles</a>
+							<a class="btn" href="3D/webgl/sandy.room.html">Sandy Room</a>
+						</li>
+					</ul>
+                </div>
+            </li>
+			
+            <li class="item">
+                <div class="in-con">
+                    <h2>Thanks!</h2>
+                </div>
+            </li>
+		</ul>
+	</div>
+</div>
+<div id="nav">
+	<!--<div id="prev" onclick="myScroll.scrollToPage('prev', 0);return false">&larr; prev</div>-->
+	<ul id="indicator">
+		
+	</ul>
+	<!--<div id="next" onclick="myScroll.scrollToPage('next', 0);return false">next &rarr;</div>-->
+</div>
+
+<script src="3D/cube5.js"></script>
+<script>cube5('cube-home')</script>
+</body>
+</html>

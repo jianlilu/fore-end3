@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<script src="../src/laro.global.js"></script>
+<script src="../src/base/module.js"></script>
+<script src="../src/laro.seed.js"></script>
+<style>
+    #canvas {
+        font-weight: bold;
+        font-size: 40px;
+        text-align: center;
+        font-style: italic;
+        border: 1px solid #333;
+    }
+</style>
+<canvas id="canvas" width="600" height="400">loading...</canvas>
+<div>
+    <input type="radio" name="state" value="normal" /><label>普通</label>
+    <input type="radio" name="state" value="rotate" /><label>旋转</label>
+    <input type="radio" name="state" value="forward" /><label>前进</label>
+    <input type="radio" name="state" value="turnround" /><label>旋转+前进（打包而成）</label>
+</div>
+<script>
+var ra = document.getElementsByName('state');
+for (var i = 0; i < ra.length; i ++) {
+    ra[i].addEventListener('click', function (i) {
+        return function (e) {
+            changeState(this.value)
+        }
+    }(i), false)
+}
+function changeState(s) {
+    if (typeof Fsmtest != 'undefined') {
+        s = typeof Fsmtest.sName[s] == 'number' ? Fsmtest.sName[s] : s;
+        Fsmtest.rect.fsm.enter(s);
+    }
+}
+
+
+Laro.multiModule(['fsm', 'loop'], function () {
+    Laro.NS('Fsmtest.states', function (L) {
+        var pkg = this,
+            emptyFn = function () {};
+        
+        
+        var Normal = L.BaseState.extend(function () {
+            
+        }).methods({
+            enter: function (msg, from) {
+                console.log('normal');
+            },
+            update: function (dt) {
+                
+            },
+            leave: function () {
+                console.log('leave normal')
+            }
+        });
+
+        var Rotate = L.BaseState.extend().methods({
+            update: function (dt) {
+                this.host.rotate += dt*50;
+            }
+        })
+
+        var Forward = L.BaseState.extend(function () {
+            this.vx = 1;
+            this.vy = 1;
+        }).methods({
+            update: function (dt) {
+                var sp = this.host.speed * dt,
+                    dx = sp * Math.cos(Math.PI*this.host.rotate/180)*this.vx,
+                    dy = sp * Math.sin(Math.PI*this.host.rotate/180)*this.vy;
+                
+                if ((this.host.y > Fsmtest.canvas.height && dy > 0)
+                    || (this.host.y < 0 && dy < 0)) {
+                    this.vy *= -1;
+                }
+                if ((this.host.x > Fsmtest.canvas.width && dx > 0)
+                    || (this.host.x < 0 && dx < 0)) {
+                    this.vx *= -1;
+                }
+                this.host.x += dx;
+                this.host.y += dy;
+            }
+        });
+        
+        this.Normal = Normal;
+        this.Rotate = Rotate;
+        this.Forward = Forward;
+    });
+
+    Laro.NS('Fsmtest', function (L) {
+        this.sName = {
+            normal: 0,
+            rotate: 1,
+            forward: 2
+        }
+    });
+
+
+    Laro.NS('Fsmtest', function (L) {
+
+        var states = [
+            Fsmtest.sName.normal, Fsmtest.states.Normal,
+            Fsmtest.sName.rotate, Fsmtest.states.Rotate,
+            Fsmtest.sName.forward, Fsmtest.states.Forward
+        ];
+        var pkg = this, appFsm;
+        
+        var Rect = L.Class(function () {
+            this.width = 40;
+            this.height = 40;
+            this.x = 100;
+            this.y = 100;
+            this.rotate = 0;
+            this.speed = 100;
+            this.fsm = new L.AppFSM(this, states);
+            // 打包前进 和 旋转 为一个新的 边走边转的state
+            this.fsm.packageState('turnround', [Fsmtest.sName.rotate, Fsmtest.sName.forward]);
+        }).methods({
+            update: function (dt) {
+                this.fsm.update(dt);
+            },
+            draw: function (render) {
+                pkg.ctx.save();
+                pkg.ctx.translate(this.x , this.y );
+                pkg.ctx.rotate(Math.PI*this.rotate/180);
+                pkg.ctx.beginPath();
+                pkg.ctx.rect(-this.width/2, -this.height/2, this.width, this.height);
+                pkg.ctx.closePath();
+                pkg.ctx.fillStyle = '#333';
+                pkg.ctx.fill();
+                pkg.ctx.translate(-this.x , -this.y);
+                pkg.ctx.restore();
+            }
+        })
+
+        function tick (dt) {
+            pkg.update(dt);
+            pkg.draw();
+        }
+        
+        this.init = function () {
+            this.canvas = document.getElementById('canvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.rect = new Rect();
+            this.rect.fsm.enter(Fsmtest.sName.normal)
+            this.loop = new L.Loop(tick);
+        };
+        this.update = function (dt) {
+            this.rect.update(dt);
+        };
+        this.draw = function () {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.rect.draw();
+        };
+        
+    });
+    
+    Fsmtest.init();
+});
+
+
+</script>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>grid system</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<style>
+html {
+	overflow: hidden;
+	-ms-touch-action: none;
+	-ms-content-zooming: none;
+}
+body {
+	position: absolute;
+	margin: 0;
+	padding: 0;
+	background: #222;
+	width: 100%;
+	height: 100%;
+}
+#screen {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background: #fff;
+	cursor: pointer;
+}
+
+</style>
+<script src="./st.js"></script>
+<script>
+
+(function () {
+	var scr, ctx, pointer, grid, npart, pdiam, gw, gh, ax = 0, ay = 0;
+	var obj = [];
+	/* ==== particle constructor ==== */
+	var Particle = function (opt) {
+		this.cont = opt.cont || document.getElementById('screen');
+		this.hasScreenLimit = opt.hasScreenLimit;
+
+		this.x = opt.x || Math.random() * scr.width ;
+		this.y = opt.y || Math.random() * scr.height;
+
+		this.a = 0.1;
+		this.vx = 0;
+		this.vy = 0;
+		this.dx = 0;
+		this.dy = 0;
+		//this.w = pdiam * .5;
+		this.w = 50 + Math.random()*50;
+        this.color = 'rgb('+parseInt(Math.random()*256)+', '+parseInt(Math.random()*256)+', '+parseInt(Math.random()*256)+')';
+
+		this.space = this.w;
+	}
+	/* ==== move particle ==== */
+	Particle.prototype.move = function () {
+		this.x  += this.dx;
+		this.y  += this.dy;
+		this.vx += this.dx;
+		this.vy += this.dy;
+		this.dx  = 0;
+		this.dy  = 0;
+		/* ---- draw particle ---- */
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.w, 0, Math.PI*2, true);
+        ctx.closePath();
+        ctx.fillStyle = this.color;
+        ctx.fill();
+	}
+	Particle.prototype.getAc = function () {
+		var ac = {};
+		var cx = this.cont.width/2,
+			cy = this.cont.height/2;
+		ac.x = this.x > cx ? -this.a : this.a;
+		ac.y = this.y > cy ? -this.a : this.a;
+		return ac;
+	}
+
+	/* ==== fluid simulation ==== */
+	Particle.prototype.physics = function () {
+		/* ---- mouse ---- */
+		if (pointer.isDown) {
+			var dx = this.x - pointer.X;
+			var dy = this.y - pointer.Y;
+			var d = Math.sqrt(dx * dx + dy * dy);
+			if (d < Math.min(scr.width, scr.height) / 2) {
+				this.dx += dx / d * 0.5;
+				this.dy += dy / d * 0.5;
+			}
+		}
+
+		//get ax,ay
+		var ac = this.getAc();
+		ax = ac.x;
+		ay = ac.y;
+
+		/* ---- gravity and acceleration ---- */
+		this.vx += ax;
+		this.vy += ay;
+		//this.vy += .1;
+		this.x += this.vx;
+		this.y += this.vy;
+		/* ---- screens limits ---- */
+		if (this.hasScreenLimit) {
+			if (this.x < this.w) this.dx += (this.w - this.x);
+			else if (this.x > scr.width - this.w) this.dx -= (this.x - scr.width + this.w);
+			if (this.y < this.w) this.dy += (this.w - this.y);
+			else if (this.y > scr.height - this.w) this.dy -= (this.y - scr.height + this.w);
+		}
+		
+		/* ---- grid coordinates ---- */
+		var gx = Math.round(this.x / (this.w *20));
+		var gy = Math.round(this.y / (this.w *20));
+		/* ---- neightbors constraints ---- */
+		for (var ix = gx - 1; ix <= gx + 1; ix++) {  
+			for (var iy = gy - 1; iy <= gy + 1; iy++) {
+				var g = grid[iy * gw + ix] || [];
+				for (var j = 0, l = g.length; j < l; j++) {
+					var that = g[j];
+					var dx = that.x - this.x;
+					var dy = that.y - this.y;
+					var d = Math.sqrt(dx * dx + dy * dy);
+
+					var min = this.w + that.w + this.space;
+					if (d < min) {
+						dx = (dx / d) * (min - d) * .2;
+						dy = (dy / d) * (min - d) * .2;
+						this.dx -= dx;
+						this.dy -= dy;
+						that.dx += dx;
+						that.dy += dy;
+					}
+				}
+			}
+		}
+		/* ---- update neighbors list ---- */
+		if (!grid[gy * gw + gx]) grid[gy * gw + gx] = [this];
+		else grid[gy * gw + gx].push(this);
+	}
+	/* ==== main loop ==== */
+	var run = function () {
+		// ---- clear screen ----
+		ctx.clearRect(0, 0, scr.width, scr.height);
+		grid = new Array(gw * gh);
+		for(var i = 0; i < npart; i++) obj[i].physics();
+		for(var i = 0; i < npart; i++) obj[i].move();
+		// ---- next frame ----
+		requestAnimFrame(run);
+	}
+	/* ==== init script ==== */
+	var init = function (p) {
+		pdiam = p.gridSize;
+		// ---- canvas ----
+		scr = new ST.Screen({
+			container: "screen",
+			resize: function () {
+				gw = Math.round(scr.width  / (pdiam * 4));
+				gh = Math.round(scr.height / (pdiam * 4));
+			}
+		});
+		ctx = scr.ctx;
+		scr.resize();
+		// ---- pointer ----
+		pointer = new ST.Pointer({});
+		// ---- create particles ----
+
+		npart = 20;
+		for (var i = 0; i < npart; i++) {
+			var ix = scr.width/2 + scr.width/2 * Math.sin(360*i/npart),
+				iy = scr.height/2 + scr.width/2 * Math.cos(360*i/npart);
+
+			obj[i] = new Particle({
+				cont: scr,
+				//x: ix,
+				//y: iy,
+				hasScreenLimit: true
+			});
+		}
+
+
+		run();
+	}
+	return {
+		// ---- launch script -----
+		load : function (p) {
+			window.addEventListener('load', function () {
+				init(p);
+			}, false);
+		}  
+	}
+})().load({
+	gridSize: 100
+});
+</script>
+</head>
+<body>
+<canvas id="screen"></canvas>
+
+</body>
+</html>

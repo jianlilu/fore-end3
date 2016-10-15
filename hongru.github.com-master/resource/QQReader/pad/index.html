@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Q+ 阅读</title>
+<link href="main.css" rel="stylesheet" />
+<script src="http://0.web.qstatic.com/webqqpic/js/jet.all.js?t=20110909002"></script>
+</head>
+
+<body class="skin1">
+    <div id="doc">
+        <div id="book" class="book">
+            <div id="pages">
+				<!--<section class="current">
+					<div class="fix-width">
+                        <div class="paddiv clr">
+							<div class="page-left"></div>
+							<div class="page-right"></div>						
+                        </div>
+                    </div>
+				</section>-->
+
+			</div>
+
+            <!-- for serialize -->
+            <div id="__serialize-box__" class="serialize-box">
+                <section>
+                    <div class="fix-width">
+                        <div class="paddiv clr">
+							<div class="page-left"></div>
+							<div class="page-right"><img alt="loading" src="images/loading.gif" class="loading-gif" id="loading-gif" /></div>						
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+        
+        <div id="s-book" class="s-book">
+            <div id="content-wrap" class="content-wrap">
+                <div id="scroll-wrap" class="scroll-wrap">
+                    <div class="scroll-body">
+                        <div id="real-content" class="real-content">single page</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="bookmark-container" class="bookmark-container clr">
+            <div class="tab-wrap"> 
+                <dl id="tab-header" class="tab-header clr">
+                    <dd id="catalog-btn" class="tab-btn catalog-btn current">目录</dd>
+                    <dd id="bookmark-btn" class="tab-btn bookmark-btn">收藏书签</dd>
+                </dl>
+            <div id="tab-innerwrap" class="tab-innerwrap clr">
+                <div class="catalog-con" id="catalog-con">
+                    <ul id="catalog-list" class="catalog-list">
+                        <li class="current">loading...</li>
+                    </ul>
+                </div>
+                
+                <div class="bookmark-con" id="bookmark-con">
+                    <ul id="bookmark-list" class="bookmark-list">
+                        loading...
+                        <li><div class="bk-div"><h4>第一章 星空中的青铜棺</h4>分离开来，然而促销被描述成减少损失...</div>
+                            <a class="bookmark-del"></a>
+                        </li>
+
+                    </ul>
+                    <div class="btn-div"><a id="edit-bookmark-list-btn" class="edit-bookmark-list-btn">编 辑</a></div>
+                    
+                </div>
+            </div>
+            </div>
+            
+            <div id="bookmark-hint-area" class="bookmark-hint-area"><span id="hint-area-arrow" class="hint-area-arrow"></span></div>
+        </div>
+        <!-- 底部导航bar -->
+        <div id="navigation" class="navigation">
+            
+        </div>
+        <!-- 右下角工具条 -->
+        <div id="tool-bar" class="tool-bar">
+            <a id="hint-tool" class="hint-tool"></a>
+            <a id="font-size" class="font-size"></a>
+            <a id="bright" class="bright"></a>
+            <a id="change-skin" class="change-skin"></a>
+            <a id="pageflip-mode" class="pageflip-mode"></a>
+            <a id="page-mode" class="page-mode"></a>
+            <a id="slide-screen" class="slide-screen"></a>
+            
+            <div id="tool-panel" class="tool-panel">
+                <a id="panel-btn1" class="panel-btn1">大</a>
+                <a id="panel-btn2" class="panel-btn2">中</a>
+                <a id="panel-btn3" class="panel-btn3">小</a>
+            </div>
+        </div>
+        
+    </div>
+    <script src="qqreader.js"></script>
+
+</body>
+</html>

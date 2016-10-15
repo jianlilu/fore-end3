@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="touchscroll.css" />
+<style>
+* {margin: 0; padding:0}
+ul, li {list-style: none}
+#wrapper {
+    position: absolute;
+    width: 1000px;
+    height: 600px;
+    left: 50%;
+    top: 50%;
+    margin-left: -500px;
+    margin-top: -300px;
+    overflow: hidden;
+    -webkit-box-shadow: 0 0 10px #aaa;
+}
+.list {
+
+    width: 99999px;
+    height: 600px;
+}
+.list li {
+    float: left;
+    width: 1000px;
+    height: 600px;
+}
+</style>
+<script src="http://0.web.qstatic.com/webqqpic/js/jet.all.js?t=20110909002"></script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <ul id="list" class="list">
+            <li style="background:#f4fad3"></li>
+            <li style="background:#daee33"></li>
+            <li style="background:#22feac"></li>
+        </ul>
+    </div>
+    
+    <script src="touchscroll.min.js"></script>
+    <script>
+        var S = new TouchScroll(document.getElementById('wrapper'), {elastic: true});
+        S.setupScroller(true);
+    </script>
+</body>
+</html>

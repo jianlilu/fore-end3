@@ -1,0 +1,54 @@
+<html>
+
+<div id="ua"></div>
+<div id="r"></div>
+<script>
+<<<<<<< HEAD
+
+    document.getElementById('ua').innerHTML = (window.navigator.userAgent);
+    var r = [];
+    r.push('window.innerWidth: '+window.innerWidth, 
+            'window.innerHeight: '+window.innerHeight, 
+            'document.documentElement.clientWidth: '+document.documentElement.clientWidth, 
+            'document.documentElement.clientHeight: '+document.documentElement.clientHeight,
+            'document.documentElement.offsetWidth:' + document.documentElement.offsetWidth,
+            'document.documentElement.offsetHeight:' + document.documentElement.offsetHeight,
+            'document.documentElement.scrollWidth:' + document.documentElement.scrollWidth,
+            'document.documentElement.scrollHeight:' + document.documentElement.scrollHeight,
+            'document.body.clientWidth: '+document.body.clientWidth, 
+            'document.body.clientHeight: '+document.body.clientHeight,
+            'document.body.offsetWidth:' + document.body.offsetWidth,
+            'document.body.offsetHeight:' + document.body.offsetHeight,
+            'document.body.scrollWidth:' + document.body.scrollWidth,
+            'document.body.scrollHeight:' + document.body.scrollHeight);
+    document.getElementById('r').innerHTML = r.join('<br/>');
+
+</script>
+</html>
+=======
+function go () {
+    var st = +new Date;
+    var n = document.getElementById('number').value;
+    var result = 0;
+    n = parseInt(n);
+    
+    var longStr = '为保证浏览器不崩溃';
+    for (var s = 0; s < 10; s ++) {
+        longStr += longStr
+    }
+    
+    if (n > 10000) { 
+        alert('为保证浏览器不崩溃，数字不要大于1000000');
+        return;
+    }
+    for (var i = 1; i <= n; i ++) {
+        result += i;
+        document.getElementById('result').innerHTML = result;
+        document.getElementById('result').innerHTML = longStr;
+    } 
+    var et = +new Date;
+    
+    document.getElementById('time').innerHTML = et - st + 'ms';
+}
+</script>
+>>>>>>> 1aa5c2f935159c3b4861312df4c06ad0230035e2

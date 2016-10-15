@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<script src="https://rawgithub.com/hongru/Laro/master/build/laro.0.1.js"></script>
+<style>
+#canvas { text-align: center; line-height: 600px; font-size:30px; font-style:italic; display:block; margin: 0 auto }
+</style>
+</head>
+
+<body>
+<div id="canvas">Loading...</div>
+
+<!-- 数据推荐用json文件 xhr请求获取，这里为了调试方便直接用全局变量 -->
+<script src="js/g_data.js"></script>
+<script>
+Laro.module.loadProgressCallback = function (name, url) {document.getElementById('canvas').innerHTML = 'loading module ' + name; }
+Laro.module.register('emberwind', 'js/game.js').require(['emberwind.resource', 'emberwind.states', 'emberwind.fighter'])
+	.register('emberwind.fighter', 'js/fighter.js').require('emberwind.resource')
+    .register('emberwind.states', 'js/states.js').require(['emberwind.resource', 'emberwind.fighter'])
+    .register('emberwind.resource', 'js/resource.js').require('laro')
+    
+Laro.use('emberwind', function () {
+    new Emberwind.Game('canvas');
+})
+
+</script>
+
+</body>
+</html>

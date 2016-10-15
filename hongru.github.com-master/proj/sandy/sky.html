@@ -1,0 +1,67 @@
+<script src="https://rawgithub.com/hongru/Sandy/master/build/sandy.0.1.js"></script>
+<style>
+html,body {margin: 0; padding: 0; overflow:hidden}
+.ctrl {position: absolute; left:20px; top: 20px; z-index:10}
+</style>
+<div class="ctrl"><input type="checkbox" id="ck" /><label for="ck">mouse control</label></div>
+
+<script> 
+	var engine, scene;
+	var root, camera;
+	var mx, my = 0;
+	var isMouseDown = false;
+	
+	function init() {
+		
+		engine = new Sandy.Engine();
+		engine.setClearColor(Sandy.Color.white);
+ 
+		camera = new Sandy.Transform();
+		camera.camera = new Sandy.Camera({far: 100});
+		camera.position.z = 5;	
+		engine.camera = camera;	
+		
+		root = new Sandy.Transform();
+		root.add(camera);
+		engine.scene.add(root);
+ 
+		cubemap = new Sandy.Cubemap({
+			left: "resources/sky/left.jpg",
+			right: "resources/sky/right.jpg",
+			up: "resources/sky/up.jpg",
+			down: "resources/sky/down.jpg",
+			back: "resources/sky/back.jpg",
+			front: "resources/sky/front.jpg"
+		});
+ 
+		engine.scene.addSkybox(cubemap);
+ 
+		document.onmousemove = onMouseMove;
+	
+		draw();
+	}
+	
+	function onMouseMove(e) {
+		mx = ( e.clientX / window.innerWidth  ) * 2 - 1;
+		my = ( e.clientY / window.innerHeight ) * 2 - 1;
+	}
+	
+	function draw() {
+		requestAnimationFrame(draw);
+		
+        if (document.getElementById('ck').checked) {
+            if (!isNaN(mx) && !isNaN(my)) {
+                // Rotate the root to which camera is attached 
+                root.rotation.x += my * Sandy.time.deltaTime / 4000;
+                root.rotation.y += mx * Sandy.time.deltaTime / 4000;
+            }    
+        } else {
+            root.rotation.y += 0.002;
+        }
+				
+		engine.render();
+	}
+    
+    onload = init;
+	
+</script> 

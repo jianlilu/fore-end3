@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Mr.Photo</title>
+<script src="js/jquery.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/glfx.js"></script>
+<script>
+/**
+ * @param	{String}	图片路径
+ * @param	{Function}	尺寸就绪
+ * @param	{Function}	加载完毕 (可选)
+ * @param	{Function}	加载错误 (可选)
+ * @example imgReady('http://www.google.com.hk/intl/zh-CN/images/logo_cn.png', function () {
+		alert('size ready: width=' + this.width + '; height=' + this.height);
+	});
+ */
+var imgReady = (function () {
+	var list = [], intervalId = null,
+
+	// 用来执行队列
+	tick = function () {
+		var i = 0;
+		for (; i < list.length; i++) {
+			list[i].end ? list.splice(i--, 1) : list[i]();
+		};
+		!list.length && stop();
+	},
+
+	// 停止所有定时器队列
+	stop = function () {
+		clearInterval(intervalId);
+		intervalId = null;
+	};
+
+	return function (url, ready, load, error) {
+		var onready, width, height, newWidth, newHeight,
+			img = new Image();
+
+		img.src = url;
+
+		// 如果图片被缓存，则直接返回缓存数据
+		if (img.complete) {
+			ready.call(img);
+			load && load.call(img);
+			return;
+		};
+
+		width = img.width;
+		height = img.height;
+
+		// 加载错误后的事件
+		img.onerror = function () {
+			error && error.call(img);
+			onready.end = true;
+			img = img.onload = img.onerror = null;
+		};
+
+		// 图片尺寸就绪
+		onready = function () {
+			newWidth = img.width;
+			newHeight = img.height;
+			if (newWidth !== width || newHeight !== height ||
+				// 如果图片已经在其他地方加载可使用面积检测
+				newWidth * newHeight > 1024
+			) {
+				ready.call(img);
+				onready.end = true;
+			};
+		};
+		onready();
+
+		// 完全加载完毕的事件
+		img.onload = function () {
+			// onload在定时器时间差范围内可能比onready快
+			// 这里进行检查并保证onready优先执行
+			!onready.end && onready();
+
+			load && load.call(img);
+
+			// IE gif动画会循环执行onload，置空onload即可
+			img = img.onload = img.onerror = null;
+		};
+
+		// 加入队列中定期执行
+		if (!onready.end) {
+			list.push(onready);
+			// 无论何时只允许出现一个定时器，减少浏览器性能损耗
+			if (intervalId === null) intervalId = setInterval(tick, 40);
+		};
+	};
+})();
+</script>
+<style>
+body,p,ul,ol,h1,h2,h3,h4,h5,h6 {
+    margin: 0;
+    padding: 0;
+}
+body {
+    background: #e0e0e0 url(images/bg.png);
+}
+h1 {
+    text-align: center;
+    background: #303030 url(images/mesh.png);
+    border-bottom: 1px solid #000;
+    padding: 40px;
+    color: #f7f7f7;
+    font-size: 48px;
+    font-family: Georgia;
+    margin-bottom: 40px;
+    text-shadow: 2px 2px 5px #eee;
+    -webkit-box-shadow: 0 4px 9px #000;
+}
+.renren-like-btn {
+    display: none;
+    position: absolute;
+    right: 20px;
+    top: 100px;
+}
+h1 .sp {
+    font-style: italic;
+    color: #6EACF5;
+    font-size: 36px;
+    text-shadow: 1px 1px 3px #999;
+}
+.container {
+    margin: 0 auto;
+     
+    text-align: center;
+    min-height: 200px;
+    
+    padding: 10px 0;
+    font-size: 20px;
+    fong-weight: bold;
+    font-family: Georgia;
+    font-style: italic;
+    color: #333;
+    
+}
+.container.noimg {
+    background: rgba(0,0,0,0.1); 
+    width: 500px;
+    -webkit-box-shadow: inset 0 0 10px #000;
+    line-height: 200px;
+    padding: 60px 0;
+}
+.container.dragover {
+    background: #b0e24a
+}
+
+.container img, canvas {
+    -webkit-box-shadow:2px 2px 5px #000;
+    background: #fff;
+}
+
+.hide {
+    display: none;
+}
+.fx-tab {
+    padding: 10px;
+    text-align: center;
+    display: none;
+}
+.fx-tab ul {
+    display: inline-block;
+    list-style: none;
+}
+.fx-tab li {
+    width: 74px;
+    float: left;
+    margin-right: 8px;
+}
+.fx-tab li span {
+    display: block;
+    padding-top: 8px;
+    font-size: 14px;
+    color: #4D4F4C;
+    font-family: Tohoma;
+    text-shadow: 1px 1px 1px #fff;
+}
+.fx-tab li div {
+    height: 74px;
+    width: 74px;
+    
+    -webkit-border-radius: 8px;
+    text-indent: -999px;
+    overflow: hidden;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+}
+.fx-tab li.normal div { background-image: url(images/normal.jpg) }
+.fx-tab li.rise div { background-image: url(images/rise.jpg) }
+.fx-tab li.amaro div { background-image: url(images/amaro.jpg) }
+.fx-tab li.hudson div { background-image: url(images/hud.jpg) }
+.fx-tab li.xpoll div { background-image: url(images/xpoll.jpg) }
+.fx-tab li.sierra div { background-image: url(images/sierra.jpg) }
+.fx-tab li.inkwell div { background-image: url(images/inkwell.jpg) }
+
+.fx-tab li:hover div {
+    -webkit-box-shadow: 0 0 2px 1px #333;
+}
+.fx-tab li.current div {
+    -webkit-box-shadow: 0 0 2px 1px #D7382C;
+}
+.fx-tab li.current span { font-weight: bold; }
+.toolbar {
+    padding: 10px;
+    text-align: center;
+}
+.toolbar a {
+    text-decoration: none;
+    display: inline-block;
+    line-height: 30px;
+    margin-right: 12px;
+    padding: 0 24px;
+    font-size: 15px;
+    font-family: 微软雅黑;
+    font-weight: bold;
+    color: #484441;
+    background: url(images/btn.png);
+    -webkit-border-radius: 30px;
+    -webkit-box-shadow: 0 0 2px #000;
+}
+.toolbar a:hover {
+    background: #e0e0e0;
+}
+.mask {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.5;
+    background: #000;
+    z-index: 10
+}
+.cut-window {
+    position: absolute;
+    border: 1px solid #30b3ff;
+    width: 200px;
+    height: 200px;
+    left: 0;
+    top: 0;
+    z-index: 11;
+}
+#___plusone_0 {
+    position: absolute;
+    top: 98px;
+    right: 20px;
+}
+</style>
+</head>
+
+<body>
+    <h1>Mr.<span class="sp">Photo</span></h1>
+
+    <div id="toolbar" class="toolbar hide">
+        <!--<a href="#" data-cmd="cut">裁剪</a>-->
+        <a href="#" data-cmd="roll-left">rotate</a>
+        <!--<a href="#" data-cmd="roll-right">逆时针选装</a>-->
+
+        <a href="#" data-cmd="save">save</a>
+       <!-- <a href="#" data-cmd="share">分享</a> -->
+    </div>
+    <div id="container" class="container noimg">
+        Drag an image here
+    </div>
+
+    <div id="fx-tab-container" class="fx-tab"></div>
+    <div id="fx-image-wrap" class="hide"></div>
+    
+
+<!-- 将此标记放在您希望呈现 +1 按钮的位置 -->
+<g:plusone annotation="none"></g:plusone>
+
+    
+    <script>
+        $.NS('FiPhoto', function () {
+            var pkg = this;
+            var downloadMime = 'image/octet-stream';
+            
+            function generateCanvas(succFunc, errFunc) {
+                pkg.$con = $('#container');
+                pkg.$imgWrap = $('#fx-image-wrap');
+                pkg.$tabWrap = $('#fx-tab-container');
+                pkg.$toolbar = $('#toolbar');
+                pkg.$toolbtns = $('#toolbar a');
+                try {
+                    var canvas = fx.canvas();
+                    if (!!canvas && canvas.getContext) { 
+                        pkg.canvas = canvas;                      
+                        succFunc(canvas);
+                    } else { 
+                        !!errFunc && errFunc();
+                    }
+                    
+                } catch(e) {
+                    !!errFunc && errFunc();
+                    return;
+                }
+            }
+            
+            function bindEvent() {
+                pkg.$con.bind('dragenter', function (e) {
+                    e.preventDefault();
+                    pkg.$con.addClass('dragover');
+                    pkg.$con.html('Drop here!');
+                    pkg.$con.addClass('noimg');
+                }).bind('dragleave', function (e) {
+                    e.preventDefault();
+                    pkg.$con.removeClass('dragover');
+                    pkg.$con.html('Drag an image here');
+                }).bind('dragover', function (e) {
+                    e.preventDefault();
+                    
+                }).bind('drop', function (e) {
+                    e.preventDefault();
+
+                    var dt = e.dataTransfer || e.originalEvent.dataTransfer;  
+                    var files = dt.files; 
+        
+                    pkg.handleFiles(files);  
+                })
+                
+            }
+            
+            function errCallback() {
+                pkg.$con.html('Sorry, Your browser do not support webGL')
+            }
+            
+            this.init = function () { 
+                generateCanvas(bindEvent, errCallback);
+                FiPhoto.tab.init();
+                FiPhoto.toolbar.init();
+                FiPhoto.cut.init();
+                FiPhoto.roll.init();
+                FiPhoto.share.init();
+            };
+            this.handleFiles = function (files) {
+                for (var i = 0; i < files.length; i++) {  
+                    var file = files[i];  
+                    var imageType = /image.*/;  
+                      
+                    if (!file.type.match(imageType)) {  
+                      continue;  
+                    }  
+     
+                    var reader = new FileReader();  
+                    reader.onload = function(e){ 
+					
+                        pkg.setFx('normal', e.target.result);
+                        pkg.$con.removeClass('dragover');
+                        pkg.$con.removeClass('noimg');
+                    }
+
+                    reader.readAsDataURL(file);  
+                }  
+            }
+
+            
+            this.setFx = function (type, url) {
+                var image = document.getElementById('fx-image');
+                if (!image) {
+                    image = document.createElement('img');
+                    image.id = 'fx-image';
+
+                    pkg.$imgWrap.append(image);
+                }
+                pkg.image = image;
+				var oldUrl = pkg.image.src;
+			
+                if (url) {
+                    pkg.image.src = url;
+                }
+				var ww = pkg.image.width,
+					hh = pkg.image.height,
+					mm = Math.max(ww, hh);
+				if (!url && mm > 0 && mm <= 1024) {
+					FiPhoto.fx[type]();
+					FiPhoto.tab.show();
+					FiPhoto.tab.update(type);
+					FiPhoto.toolbar.show();
+					return;
+				}
+				imgReady(url, function () {
+				
+					var newW = this.width, newH = this.height;
+					var max = Math.max(newW, newH);
+					if (max > 1024) {
+						if (max == newW) {
+							var div = newH/newW;
+							newW = 1024;
+							newH = Math.round(newW * div);
+						} else if (max == newH) {
+							var div = newW/newH;
+							newH = 1024;
+							newW = Math.round(newH*div);
+						}
+					}
+					pkg.image.width = newW;
+					pkg.image.height = newH;
+					
+					FiPhoto.fx[type]();
+					FiPhoto.tab.show();
+					FiPhoto.tab.update(type);
+					FiPhoto.toolbar.show();
+				})
+                //$(pkg.image).hide();
+				/*
+                FiPhoto.fx[type]();
+                FiPhoto.tab.show();
+                FiPhoto.tab.update(type);
+                FiPhoto.toolbar.show();
+				*/
+            };
+            
+            // save image
+            this.save = function () {
+                var dataURL = pkg.canvas.toDataURL();
+                document.location.href = dataURL.replace(/image\/png/i, downloadMime);
+                //$('<a href="'+dataURL+'">img</a>').appendTo('body');
+            }
+            this.createImage = function (src) {
+                var img = document.createElement('img');
+                img.src = src;
+                return img;
+            }
+        });
+            
+        $.NS('FiPhoto.fx', function () {
+            
+            this.normal = function () {
+                var canvas = FiPhoto.canvas,
+                    image = FiPhoto.image;
+                function imgLoadCallback () {
+                    var texture = canvas.texture(image);
+                    canvas.draw(texture).brightnessContrast(0, 0).update();
+                    FiPhoto.$con.css({'minHeight': canvas.height});
+                    FiPhoto.$con.empty().append(canvas)//.append('<img alt="" src="'+canvas.toDataURL()+'" />');
+					//FiPhoto.image.src = canvas.toDataURL();
+                }
+                if (image.complete) { 
+					setTimeout(imgLoadCallback, 0)
+                    //imgLoadCallback();
+                    return;
+                }
+                $(image).load(imgLoadCallback)
+
+            };
+            this.rise = function () {
+                var canvas = FiPhoto.canvas,
+                    image = FiPhoto.image;
+                function imgLoadCallback() {
+                    var texture = canvas.texture(image);
+                    canvas.draw(texture).brightnessContrast(0, 0.15).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).sepia(0.4).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).vignette(0.2, 0.4).update();
+                    FiPhoto.$con.css({'minHeight': canvas.height});
+                    FiPhoto.$con.empty().append(canvas)//.append('<img alt="" src="'+canvas.toDataURL()+'" />');
+                }
+                if (image.complete) {
+                    setTimeout(imgLoadCallback, 0)
+                    return;
+                }
+                $(image).load(imgLoadCallback)
+
+            };
+            this.amaro = function () {
+                var canvas = FiPhoto.canvas,
+                    image = FiPhoto.image;
+                function imgLoadCallback() {
+                    var texture = canvas.texture(image);
+                    canvas.draw(texture).brightnessContrast(0.05, -0.1).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).hueSaturation(-0.02, 0.3).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).sepia(0.6).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).vignette(0.12, 0.4).update();
+                    FiPhoto.$con.css({'minHeight': canvas.height});
+                    FiPhoto.$con.empty().append(canvas)//.append('<img alt="" src="'+canvas.toDataURL()+'" />');
+                }    
+                if (image.complete) {
+                    setTimeout(imgLoadCallback, 0)
+                    return;
+                }
+                $(image).load(imgLoadCallback)
+            };
+            this.hudson = function () {
+                var canvas = FiPhoto.canvas,
+                    image = FiPhoto.image;
+                function imgLoadCallback() {
+                    var texture = canvas.texture(image);
+                    canvas.draw(texture).brightnessContrast(0.15, 0.15).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).hueSaturation(0, 0.15).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).vignette(0.2, 0.5).update();
+                    FiPhoto.$con.css({'minHeight': canvas.height});
+                    FiPhoto.$con.empty().append(canvas)//.append('<img alt="" src="'+canvas.toDataURL()+'" />');
+                }    
+                if (image.complete) {
+                    setTimeout(imgLoadCallback, 0)
+                    return;
+                }
+                $(image).load(imgLoadCallback)
+            }
+            this.xpoll = function () {
+                var canvas = FiPhoto.canvas,
+                    image = FiPhoto.image;
+                function imgLoadCallback() {
+                    var texture = canvas.texture(image);
+                    canvas.draw(texture).brightnessContrast(0, 0.25).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).hueSaturation(0, 0.2).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).vignette(0, 0.5).update();
+                    FiPhoto.$con.css({'minHeight': canvas.height});
+                    FiPhoto.$con.empty().append(canvas)//.append('<img alt="" src="'+canvas.toDataURL()+'" />');
+                }    
+                if (image.complete) {
+                    setTimeout(imgLoadCallback, 0)
+                    return;
+                }
+                $(image).load(imgLoadCallback)
+            }
+            this.sierra = function () {
+                var canvas = FiPhoto.canvas,
+                    image = FiPhoto.image;
+                function imgLoadCallback() {
+                    var texture = canvas.texture(image);
+                    canvas.draw(texture).brightnessContrast(-0.1, 0.2).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).hueSaturation(0, 0.4).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).sepia(0.4).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).vignette(0, 0.5).update();
+                    FiPhoto.$con.css({'minHeight': canvas.height});
+                    FiPhoto.$con.empty().append(canvas)//.append('<img alt="" src="'+canvas.toDataURL()+'" />');
+                }    
+                if (image.complete) {
+                    setTimeout(imgLoadCallback, 0)
+                    return;
+                }
+                $(image).load(imgLoadCallback)
+            }
+            this.inkwell = function () {
+                var canvas = FiPhoto.canvas,
+                    image = FiPhoto.image;
+                function imgLoadCallback() {
+                    var texture = canvas.texture(image);
+                    canvas.draw(texture).brightnessContrast(-0.02, 0.2).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).hueSaturation(0, -1).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).vignette(0.15, 0.5).update();
+                    FiPhoto.$con.css({'minHeight': canvas.height});
+                    FiPhoto.$con.empty().append(canvas)//.append('<img alt="" src="'+canvas.toDataURL()+'" />');
+                    
+                }    
+                if (image.complete) {
+                    setTimeout(imgLoadCallback, 0)
+                    return;
+                }
+                $(image).load(imgLoadCallback)
+            };
+            
+            this.sketch = function () {
+                var canvas = FiPhoto.canvas,
+                    image = FiPhoto.image;
+                function imgLoadCallback() {
+                    var texture = canvas.texture(image);
+                    canvas.draw(texture).brightnessContrast(0.2, 0.6).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).unsharpMask(30, 5).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).hueSaturation(0, -1).update();
+                    texture = canvas.texture(canvas);
+                    canvas.draw(texture).vignette(0.15, 0.5).update();
+                    FiPhoto.$con.css({'minHeight': canvas.height});
+                    FiPhoto.$con.empty().append(canvas)//.append('<img alt="" src="'+canvas.toDataURL()+'" />');
+                    
+                }    
+                if (image.complete) {
+                    setTimeout(imgLoadCallback, 0)
+                    return;
+                }
+                $(image).load(imgLoadCallback)
+            }
+            
+        });
+            
+        $.NS('FiPhoto.tab', function () {
+            var pkg = this;
+            this.init = function () {
+                this.create();
+                this.bind();
+            };
+            this.create = function () {
+                var dom = [];
+                dom.push('<ul>');
+                for (var k in FiPhoto.fx) {
+                    dom.push('<li data-cmd="'+ k +'" class="'+k+'"><div>'+ k +'</div><span>'+k+'</span></li>');
+                }
+                dom.push('</ul>');
+                FiPhoto.$tabWrap.html(dom.join(''));
+                
+                pkg.$ul = FiPhoto.$tabWrap.find('ul');
+                pkg.$li = pkg.$ul.find('li');
+                
+            };
+            this.bind = function () {
+                pkg.$li.bind('click', function (e) {
+                    e.preventDefault();
+                    var cmd = $(this).attr('data-cmd');
+                    FiPhoto.setFx(cmd);
+                })
+            };
+            this.show = function () {
+                FiPhoto.$tabWrap.slideDown();
+            };
+            this.update = function (type) {
+                pkg.$li.removeClass('current');
+                pkg.$li.each(function (i) {
+                    if ($(this).attr('data-cmd') == type) {
+                        $(this).addClass('current');
+                        return;
+                    }
+                })
+            }
+        })
+        
+        $.NS('FiPhoto.toolbar', function () {
+            var pkg = this;
+
+            this.init = function () {
+                this.create();
+                this.bind();
+            };
+            this.create = function () {
+                pkg.$btns = FiPhoto.$toolbtns || $('#toolbar a');
+            };
+            this.bind = function () {
+                pkg.$btns.click(function (e) {
+                    e.preventDefault();
+                    var cmd = $(this).attr('data-cmd');
+                    switch(cmd) {
+                        case 'cut':
+                            FiPhoto.cut.show();
+                            break;
+                        case 'roll-left':
+                            FiPhoto.roll.left();
+                            break;
+                        case 'roll-right':
+                            FiPhoto.roll.right();
+                            break;
+                        case 'blur':
+                            FiPhoto.blur.show();
+                            break;
+                        case 'save':
+                            FiPhoto.save();
+                            break;
+                    }
+                })
+            };
+            this.show = function () {
+                FiPhoto.$toolbar.fadeIn();
+            }
+        });
+        
+        $.NS('FiPhoto.cut', function () {
+            var pkg = this;
+            var isDragStart = false,
+                mousePos = {x: 0, y: 0},
+                cutInfo = {
+                    left: 0,
+                    top: 0,
+                    width: 0,
+                    height: 0
+                },
+                canvasInfo = {
+                    left: 0,
+                    top: 0,
+                    width: 0,
+                    height: 0
+                };
+            
+            this.init = function () {
+                this.create();
+                this.bind();
+            };
+            this.bind = function () {
+                this.$cutWin.bind('mousedown', function (e) { pkg.dragStart(e) });
+                $(document).bind('mousemove.dragCutWindow', function (e) { pkg.mouseMove(e) })
+                    .bind('mouseup.dragCutWindow', function (e) { pkg.mouseUp(e) });
+            };
+            this.dragStart = function (e) {
+                isDragStart = true;
+                pkg.updateInfo(e);
+            }
+            this.mouseMove = function (e) {
+                if (!isDragStart) { return }
+              /*  var newLeft = cutInfo.left + (e.clientX - mousePos.x),
+                    newTop = cutInfo.top + (e.clientY - mousePos.y),
+                    maxLeft = (canvasInfo.left + canvasInfo.width - cutInfo.width),
+                    maxTop = (canvasInfo.top + canvasInfo.height - cutInfo.height);
+                */
+                var newLeft = cutInfo.left + (e.clientX - mousePos.x),
+                    newTop = cutInfo.top + (e.clientY - mousePos.y);
+                pkg.$cutWin.css({
+                    left: newLeft,
+                    top: newTop,
+                    backgroundPosition: '-'+(e.clientX - mousePos.x)+'px -'+(e.clientY - mousePos.y)+'px'
+                });
+                         
+                
+            }
+            this.mouseUp = function (e) {
+                isDragStart = false;
+                pkg.updateInfo(e);
+            }
+            this.updateInfo = function (e) {
+                mousePos = {
+                    x: e.clientX,
+                    y: e.clientY
+                };
+                canvasInfo = pkg.getCanvasInfo();
+                cutInfo = pkg.getCutInfo();
+            }
+            this.create = function () {
+                this.$mask = $('<div class="mask hide" id="mask"></div>');
+                this.$cutWin = $('<div class="cut-window hide" id="cut-window"></div>');
+                this.$mask.appendTo('body');
+                this.$cutWin.appendTo('body');
+            };
+            this.show = function () {
+                /*this.$mask.show();
+                this.updateCutWin();
+                this.$cutWin.css({
+                    backgroundImage: 'url('+FiPhoto.canvas.toDataURL()+')',
+                    backgroundRepeat: 'no-repeat'
+                })
+                this.$cutWin.show();
+                */
+            };
+            this.updateCutWin = function () {
+                var info = this.getCanvasInfo();
+                var wh = Math.min(info.width, info.height);
+                info.left -= 1;
+                info.top -= 1;
+                info.width = wh;
+                info.height = wh;
+                this.$cutWin.css(info);
+            }
+            this.getCanvasInfo = function () {
+                var pos = $(FiPhoto.canvas).position();
+                if (!pos) return;
+                var ret = {
+                    left: pos.left,
+                    top: pos.top,
+                    width: $(FiPhoto.canvas).width(),
+                    height: $(FiPhoto.canvas).height()
+                };
+                return ret;
+            };
+            this.getCutInfo = function () {
+                var pos = $(pkg.$cutWin).position();
+                var ret = {
+                    left: pos.left,
+                    top: pos.top,
+                    width: $(pkg.$cutWin).width(),
+                    height: $(pkg.$cutWin).height()
+                }
+                return ret;
+            }
+        });
+        
+        $.NS('FiPhoto.roll', function () {
+            var pkg = this;
+            this.init = function () {
+                //this.create();
+            };
+            this.create = function () {
+				if (!this.$tmpCanvas && !this.cvs) {
+					this.$tmpCanvas = $('<canvas></canvas>').appendTo('#fx-image-wrap');
+					this.cvs = this.$tmpCanvas.get(0);
+					
+					this.ctx = this.cvs.getContext('2d');	
+				}
+                this.cvs.width = FiPhoto.canvas.height;
+				this.cvs.height = FiPhoto.canvas.width;
+            }
+            this.doroll = function (dir) {
+                if (dir == undefined) {
+                    dir = 'left';
+                }
+                var angle = 0;
+                if (dir == 'left') {
+                    angle = Math.PI/2;
+                } else if (dir == 'right') {
+                    angle = -Math.PI/2;
+                }
+                
+                this.create();
+                this.ctx.save();
+                this.ctx.translate(this.cvs.width/2, this.cvs.height/2);
+                this.ctx.rotate(angle);
+				this.ctx.translate(-this.cvs.height/2, -this.cvs.width/2);
+                this.ctx.drawImage(FiPhoto.image, 0, 0, FiPhoto.image.width, FiPhoto.image.height);
+                this.ctx.restore();
+                
+                //FiPhoto.image.src = this.ctx.toDataURL('image/png');
+                var type = FiPhoto.$tabWrap.find('li.current').attr('data-cmd');
+                var src = this.cvs.toDataURL('image/png');
+
+                FiPhoto.setFx(type, src);
+                
+                //this.destory();
+            }
+            this.left = function () {
+                this.doroll('left');
+            };
+            this.destory = function () {
+                this.$tmpCanvas.remove();
+                this.$tmpCanvas = null;
+                this.cvs = null;
+                this.ctx = null;
+            };
+            this.right = function () {
+                this.doroll('right');
+            }
+        });
+        
+        $.NS('FiPhoto.share', function () {
+            var pkg = this;
+            // 用iframe 创建 from post提交数据的方式
+            var postNewWin = function(url){
+                var urlArr = url.split("?");
+                var postUrl = urlArr[0];
+                var postData = urlArr[1];
+                var iframe = document.getElementById("postData_iframe");
+                if(!iframe){
+                    iframe = document.createElement("iframe");
+                    iframe.id = "postData_iframe";
+                    iframe.scr= "about:blank";
+                    iframe.frameborder = "0";
+                    iframe.style.width = "0px";
+                    iframe.style.height = "0px";
+
+                    document.body.appendChild(iframe);
+                    iframe.contentWindow.document.write('<body><form id="postData_form" method="post" target="_blank"></form></body>');
+                }
+                iframe.contentWindow.document.getElementById("postData_form").innerHTML = "<input name='postData' id='postData' type='text' value='" + postData + "'/>";
+                iframe.contentWindow.document.getElementById("postData_form").action = postUrl;
+                iframe.contentWindow.document.getElementById("postData_form").submit();
+            };
+            
+            this.init = function () {
+            
+            };
+            this.show = function () {
+                
+            };
+            this.hide = function () {
+            
+            };
+            
+            this.toRenren = function () {
+            
+            };
+            this.toSina = function (opt) {
+                var defaults = {
+                    appKey: '',
+                    img: 'http://hongru.github.com/test/FiPhoto/images/title.png',
+                    title: document.title,
+                    link: document.URL || location.href,
+                    charset: 'utf-8'
+                };
+                opt = $.extend(defaults, opt || {});
+                
+                void((function (s, d, e, r, l, p, t, z, c) {
+                    var f = 'http://v.t.sina.com.cn/share/share.php?appkey=真实的appkey',
+                        u = z || d.location,
+                        p = ['&url=', e(u), '&title=', e(t || d.title), '&source=', e(r), '&sourceUrl=', e(l), '&content=', c || 'gb2312', '&pic=', e(p || '')].join('');
+
+                    function a() {
+                        if (!window.open([f, p].join(''), 'mb', ['toolbar=0,status=0,resizable=1,width=440,height=430,left=', (s.width - 440) / 2, ',top=', (s.height - 430) / 2].join(''))) u.href = [f, p].join('');
+                    };
+                    if (/Firefox/.test(navigator.userAgent)) setTimeout(a, 0);
+                    else a();
+                })(screen, document, encodeURIComponent, '', '', opt.img, opt.title, opt.link, opt.charset));
+            }
+            this.toSinaWeibo = function () {
+                
+            };
+            this.toTXWeibo = function () {
+            
+            };
+            this.toQzone = function () {
+            
+            };
+        })
+            
+
+        $(function () { FiPhoto.init(); });
+    </script>
+   
+<script type="text/javascript" charset="utf-8">
+(function(){
+var p = [], w=130, h=24,
+lk = {
+url:''||location.href, /*喜欢的URL(不含如分页等无关参数)*/
+title:''||document.title, /*喜欢标题(可选)*/
+description:'', /*喜欢简介(可选)*/
+image:'' /*喜欢相关图片的路径(可选)*/
+};
+for(var i in lk){
+p.push(i + '=' + encodeURIComponent(lk[i]||''));
+}
+var $ifr = $('<iframe class="renren-like-btn" scrolling="no" frameborder="0" allowtransparency="true" src="http://www.connect.renren.com/like/v2?'+p.join('&')+'" style="display: none; width:'+w+'px;height:'+h+'px;"></iframe>').appendTo('body');
+$ifr.load(function () { $ifr.fadeIn() })
+})();
+</script>
+
+
+<!-- 将此呈现调用放在适当的位置 -->
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+</body>
+</html>
